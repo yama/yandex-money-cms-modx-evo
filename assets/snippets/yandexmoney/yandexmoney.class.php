@@ -107,6 +107,8 @@ class Yandexmoney {
 	public $method_cash;
 	public $method_mobile;
 	public $method_wm;
+	public $method_ab;
+	public $method_sb;
 
 	public $pay_method;
     
@@ -211,7 +213,20 @@ class Yandexmoney {
 			}
 			$output .= '>оплата со счета мобильного телефона</option>';
 		}
-		if ($this->method_wm == 1 &&  $this->org_mode) {
+		if ($this->method_ab == 1 &&  $this->org_mode) {
+			$output .= '<option value="AB"';
+			if ($this->pay_method == 'AB'){
+				$output.=' selected ';
+			}
+			$output .= '>Альфаклик</option>';
+		}
+		if ($this->method_sb == 1 &&  $this->org_mode) {
+			$output .= '<option value="SB"';
+			if ($this->pay_method == 'SB'){
+				$output.=' selected ';
+			}
+			$output .= '>Сбербанк Онлайн</option>';
+		}		if ($this->method_wm == 1 &&  $this->org_mode) {
 			$output .= '<option value="WM"';
 			if ($this->pay_method == 'WM'){
 				$output.=' selected ';
@@ -425,6 +440,8 @@ class Yandexmoney {
 					<input type="checkbox" name="config[method_cash]" value="1" id="ym_method_3" '.(($this->method_cash==1 ? 'checked' : '')).'><label for="ym_method_3" style="width: 280px; text-align: left;">наличными в кассах и терминалах партнеров</label> <br>
 					<input type="checkbox" name="config[method_mobile]" value="1" id="ym_method_4" '.(($this->method_mobile==1 ? 'checked' : '')).'><label for="ym_method_4" style="width: 280px; text-align: left;">оплата со счета мобильного телефона</label> <br>
 					<input type="checkbox" name="config[method_wm]" value="1" id="ym_method_5" '.(($this->method_wm==1 ? 'checked' : '')).'><label for="ym_method_5" style="width: 280px;text-align: left;">электронная валюта WebMoney</label> <br>
+					<input type="checkbox" name="config[method_ab]" value="1" id="ym_method_6" '.(($this->method_ab==1 ? 'checked' : '')).'><label for="ym_method_6" style="width: 280px;text-align: left;">Альфа-Клик</label> <br>
+					<input type="checkbox" name="config[method_sb]" value="1" id="ym_method_7" '.(($this->method_sb==1 ? 'checked' : '')).'><label for="ym_method_7" style="width: 280px;text-align: left;">Сбербанк-Онлайн</label> <br>
 				</div>
 			 </td>
           </tr>
