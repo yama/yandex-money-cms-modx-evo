@@ -64,7 +64,7 @@ if(!function_exists('YandexMoneyValidate')){
  *
  * @author YandexMoney
  * @package yandexmoney
- * @version 1.0
+ * @version 1.0.0
  */
 
 if (!class_exists('Yandexmoney')){
