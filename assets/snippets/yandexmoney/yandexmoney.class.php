@@ -448,12 +448,14 @@ class Yandexmoney {
 		
 		 <tr class="individ">
 			<td></td>
-			<td><p>Если у вас нет аккаунта в Яндекс-Деньги, то следует зарегистрироваться тут - <a href="https://money.yandex.ru/">https://money.yandex.ru/</a></p><p><b>ВАЖНО!</b> Вам нужно будет указать ссылку для приема HTTP уведомлений здесь - <a href="https://sp-money.yandex.ru/myservices/online.xml" target="_blank">https://sp-money.yandex.ru/myservices/online.xml</a></p></td>
+			<td><p>Модуль версии 1.0.0</p>
+			<p>Если у вас нет аккаунта в Яндекс-Деньги, то следует зарегистрироваться тут - <a href="https://money.yandex.ru/">https://money.yandex.ru/</a></p><p><b>ВАЖНО!</b> Вам нужно будет указать ссылку для приема HTTP уведомлений здесь - <a href="https://sp-money.yandex.ru/myservices/online.xml" target="_blank">https://sp-money.yandex.ru/myservices/online.xml</a></p></td>
 		 </tr>
 
 		  <tr class="org" style="display: none;">
 			<td></td>
-			<td><p>Если у вас нет аккаунта в Яндекс-Деньги, то следует зарегистрироваться тут - <a href="https://money.yandex.ru/joinups/">https://money.yandex.ru/joinups/</a></p></td>
+			<td><p>Модуль версии 1.0.0</p>
+			<p>Если у вас нет аккаунта в Яндекс-Деньги, то следует зарегистрироваться тут - <a href="https://money.yandex.ru/joinups/">https://money.yandex.ru/joinups/</a></p></td>
 		 </tr>
 	
 		  <tr class="individ">
