@@ -64,7 +64,7 @@ if(!function_exists('YandexMoneyValidate')){
  *
  * @author YandexMoney
  * @package yandexmoney
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 if (!class_exists('Yandexmoney')){
@@ -109,6 +109,8 @@ class Yandexmoney {
 	public $method_wm;
 	public $method_ab;
 	public $method_sb;
+	public $method_ma;
+	public $method_pb;
 
 	public $pay_method;
     
@@ -174,64 +176,56 @@ class Yandexmoney {
 	}
 
 	public function checkPayMethod(){
-		if ($this->pay_method == 'PC' || $this->pay_method == 'AC' || $this->pay_method == 'GP' || $this->pay_method == 'MC' || $this->pay_method == 'WM'){
-			return TRUE;
-		}else{
-			return FALSE;
-		}
+		if (in_array($this->pay_method, array('PC','AC','MC','GP','WM','AB','SB','MA','PB'))) return TRUE;
+		return FALSE;
 	}
 
 	public function getSelectHtml(){
-		if ((int)$this->status === 0){
-			return '';
-		}
+		if ((int)$this->status === 0)	return '';
 		if ($this->method_ym == 1) {
 			$output .= '<option value="PC"';
-			if ($this->pay_method == 'PC'){
-				$output.=' selected ';
-			}
-			$output .= '>электронная валюта Яндекс.Деньги</option>';
+			if ($this->pay_method == 'PC') $output.=' selected ';
+			$output .= '>Оплата из кошелька в Яндекс.Деньгах</option>';
 		}
 		if ($this->method_cards == 1) {
 			$output .= '<option value="AC"';
-			if ($this->pay_method == 'AC'){
-				$output.=' selected ';
-			}
-			$output .= '>банковские карты VISA, MasterCard, Maestro</option>';
+			if ($this->pay_method == 'AC') $output.=' selected ';
+			$output .= '>Оплата с произвольной банковской карты</option>';
 		}
 		if ($this->method_cash == 1 && $this->org_mode) {
 			$output .= '<option value="GP"';
-			if ($this->pay_method == 'GP'){
-				$output.=' selected ';
-			}
-			$output .= '>наличными в кассах и терминалах партнеров</option>';
+			if ($this->pay_method == 'GP') $output.=' selected ';
+			$output .= '>Оплата наличными через кассы и терминалы</option>';
 		}
 		if ($this->method_mobile == 1 &&  $this->org_mode) {
 			$output .= '<option value="MC"';
-			if ($this->pay_method == 'MC'){
-				$output.=' selected ';
-			}
-			$output .= '>оплата со счета мобильного телефона</option>';
+			if ($this->pay_method == 'MC') $output.=' selected ';
+			$output .= '>Платеж со счета мобильного телефона</option>';
 		}
 		if ($this->method_ab == 1 &&  $this->org_mode) {
 			$output .= '<option value="AB"';
-			if ($this->pay_method == 'AB'){
-				$output.=' selected ';
-			}
-			$output .= '>Альфаклик</option>';
+			if ($this->pay_method == 'AB') $output.=' selected ';
+			$output .= '>Оплата через Альфа-Клик</option>';
 		}
 		if ($this->method_sb == 1 &&  $this->org_mode) {
 			$output .= '<option value="SB"';
-			if ($this->pay_method == 'SB'){
-				$output.=' selected ';
-			}
-			$output .= '>Сбербанк Онлайн</option>';
-		}		if ($this->method_wm == 1 &&  $this->org_mode) {
+			if ($this->pay_method == 'SB') $output.=' selected ';
+			$output .= '>Оплата через Сбербанк: оплата по SMS или Сбербанк Онлайн</option>';
+		}		
+		if ($this->method_wm == 1 &&  $this->org_mode) {
 			$output .= '<option value="WM"';
-			if ($this->pay_method == 'WM'){
-				$output.=' selected ';
-			}
-			$output .= '>электронная валюта WebMoney</option>';
+			if ($this->pay_method == 'WM') $output.=' selected '; 
+			$output .= '>Оплата из кошелька в системе WebMoney</option>';
+		}
+		if ($this->method_ma == 1 &&  $this->org_mode) {
+			$output .= '<option value="MA"';
+			if ($this->pay_method == 'MA') $output.=' selected '; 
+			$output .= '>Оплата через MasterPass</option>';
+		}
+		if ($this->method_pb == 1 &&  $this->org_mode) {
+			$output .= '<option value="PB"';
+			if ($this->pay_method == 'PB') $output.=' selected '; 
+			$output .= '>Оплата через интернет-банк Промсвязьбанка</option>';
 		}
 		return $output;
 	}
@@ -257,7 +251,7 @@ class Yandexmoney {
 					   <input type="hidden" name="comment-needed" value="'.$this->comment_needed.'">
 					   <input type="hidden" name="label" value="'.$this->orderId.'">
 					   <input type="hidden" name="quickpay-form" value="'.$this->quickpay_form.'">
-					   <input type="hidden" name="payment-type" value="'.$this->pay_method.'">
+					   <input type="hidden" name="paymentType" value="'.$this->pay_method.'">
 					   <input type="hidden" name="targets" value="Заказ '.$this->orderId.'">
 					   <input type="hidden" name="sum" value="'.$this->orderTotal.'" data-type="number" >
 					   <input type="hidden" name="comment" value="'.$this->comment.'" >
@@ -432,29 +426,31 @@ class Yandexmoney {
 		   <tr>
             <td><span class="required">*</span> Укажите необходимые способы оплаты:</td>
             <td>
-				<input type="checkbox" name="config[method_ym]" value="1" id="ym_method_1" '.(($this->method_ym==1 ? 'checked' : '')).'><label for="ym_method_1" style="width: 280px; text-align: left;">электронная валюта Яндекс.Деньги</label> <br>
+				<input type="checkbox" name="config[method_ym]" value="1" id="ym_method_1" '.(($this->method_ym==1 ? 'checked' : '')).'><label for="ym_method_1" style="width: 280px; text-align: left;">Кошелек Яндекс.Деньги</label> <br>
 				
-				<input type="checkbox" name="config[method_cards]" value="1" id="ym_method_2" '.(($this->method_cards==1 ? 'checked' : '')).'><label for="ym_method_2" style="width: 280px; text-align: left;">банковские карты VISA, MasterCard, Maestro</label> <br>
+				<input type="checkbox" name="config[method_cards]" value="1" id="ym_method_2" '.(($this->method_cards==1 ? 'checked' : '')).'><label for="ym_method_2" style="width: 280px; text-align: left;">Банковская карта</label> <br>
 				
 				<div class="org" style="display:none;">
-					<input type="checkbox" name="config[method_cash]" value="1" id="ym_method_3" '.(($this->method_cash==1 ? 'checked' : '')).'><label for="ym_method_3" style="width: 280px; text-align: left;">наличными в кассах и терминалах партнеров</label> <br>
-					<input type="checkbox" name="config[method_mobile]" value="1" id="ym_method_4" '.(($this->method_mobile==1 ? 'checked' : '')).'><label for="ym_method_4" style="width: 280px; text-align: left;">оплата со счета мобильного телефона</label> <br>
-					<input type="checkbox" name="config[method_wm]" value="1" id="ym_method_5" '.(($this->method_wm==1 ? 'checked' : '')).'><label for="ym_method_5" style="width: 280px;text-align: left;">электронная валюта WebMoney</label> <br>
+					<input type="checkbox" name="config[method_cash]" value="1" id="ym_method_3" '.(($this->method_cash==1 ? 'checked' : '')).'><label for="ym_method_3" style="width: 280px; text-align: left;">Наличными через кассы и терминалы</label> <br>
+					<input type="checkbox" name="config[method_mobile]" value="1" id="ym_method_4" '.(($this->method_mobile==1 ? 'checked' : '')).'><label for="ym_method_4" style="width: 280px; text-align: left;">Счет мобильного телефона</label> <br>
+					<input type="checkbox" name="config[method_wm]" value="1" id="ym_method_5" '.(($this->method_wm==1 ? 'checked' : '')).'><label for="ym_method_5" style="width: 280px;text-align: left;">Кошелек WebMoney</label> <br>
 					<input type="checkbox" name="config[method_ab]" value="1" id="ym_method_6" '.(($this->method_ab==1 ? 'checked' : '')).'><label for="ym_method_6" style="width: 280px;text-align: left;">Альфа-Клик</label> <br>
-					<input type="checkbox" name="config[method_sb]" value="1" id="ym_method_7" '.(($this->method_sb==1 ? 'checked' : '')).'><label for="ym_method_7" style="width: 280px;text-align: left;">Сбербанк-Онлайн</label> <br>
+					<input type="checkbox" name="config[method_sb]" value="1" id="ym_method_7" '.(($this->method_sb==1 ? 'checked' : '')).'><label for="ym_method_7" style="width: 280px;text-align: left;">Сбербанк: оплата по SMS или Сбербанк Онлайн</label> <br>
+					<input type="checkbox" name="config[method_ma]" value="1" id="ym_method_8" '.(($this->method_ma==1 ? 'checked' : '')).'><label for="ym_method_8" style="width: 280px;text-align: left;">MasterPass</label> <br>
+					<input type="checkbox" name="config[method_pb]" value="1" id="ym_method_9" '.(($this->method_pb==1 ? 'checked' : '')).'><label for="ym_method_9" style="width: 280px;text-align: left;">Интернет-банк Промсвязьбанка</label> <br>
 				</div>
 			 </td>
           </tr>
 		
 		 <tr class="individ">
 			<td></td>
-			<td><p>Модуль версии 1.0.0</p>
+			<td><p>Модуль версии 1.1.0</p>
 			<p>Если у вас нет аккаунта в Яндекс-Деньги, то следует зарегистрироваться тут - <a href="https://money.yandex.ru/">https://money.yandex.ru/</a></p><p><b>ВАЖНО!</b> Вам нужно будет указать ссылку для приема HTTP уведомлений здесь - <a href="https://sp-money.yandex.ru/myservices/online.xml" target="_blank">https://sp-money.yandex.ru/myservices/online.xml</a></p></td>
 		 </tr>
 
 		  <tr class="org" style="display: none;">
 			<td></td>
-			<td><p>Модуль версии 1.0.0</p>
+			<td><p>Модуль версии 1.1.0</p>
 			<p>Если у вас нет аккаунта в Яндекс-Деньги, то следует зарегистрироваться тут - <a href="https://money.yandex.ru/joinups/">https://money.yandex.ru/joinups/</a></p></td>
 		 </tr>
 	
