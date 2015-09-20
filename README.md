@@ -56,6 +56,7 @@ case 'save':
   $fields = array(
      'config' => serialize($_POST['config'])
   );
+  $ym_stat = new yamoney_statistics($_POST['config']);
   $query = $modx->db->update($fields, $mod_table, 'id = 1'); 
   header("Location: $_SERVER[REQUEST_URI]");
 break;

@@ -1,4 +1,5 @@
 <?php
+if (!defined('YANDEXMONEY_VERSION')) define('YANDEXMONEY_VERSION', '1.2.0');
 if(!function_exists('YandexMoneyForm')){
 	function YandexMoneyForm(&$fields){
 	  global $modx, $vMsg;
@@ -34,8 +35,6 @@ if(!function_exists('YandexMoneyForm')){
 				
 				echo $ym->createFormHtml();
 				exit;
-			}else{
-			
 			}
 	  }
 	  
@@ -64,7 +63,6 @@ if(!function_exists('YandexMoneyValidate')){
  *
  * @author YandexMoney
  * @package yandexmoney
- * @version 1.1.0
  */
 
 if (!class_exists('Yandexmoney')){
@@ -176,61 +174,37 @@ class Yandexmoney {
 	}
 
 	public function checkPayMethod(){
-		if (in_array($this->pay_method, array('PC','AC','MC','GP','WM','AB','SB','MA','PB'))) return TRUE;
-		return FALSE;
+		if (in_array($this->pay_method, array('PC','AC','MC','GP','WM','AB','SB','MA','PB'))) return true;
+		return true;
 	}
 
 	public function getSelectHtml(){
 		if ((int)$this->status === 0)	return '';
-		if ($this->method_ym == 1) {
-			$output .= '<option value="PC"';
-			if ($this->pay_method == 'PC') $output.=' selected ';
-			$output .= '>Оплата из кошелька в Яндекс.Деньгах</option>';
-		}
-		if ($this->method_cards == 1) {
-			$output .= '<option value="AC"';
-			if ($this->pay_method == 'AC') $output.=' selected ';
-			$output .= '>Оплата с произвольной банковской карты</option>';
-		}
-		if ($this->method_cash == 1 && $this->org_mode) {
-			$output .= '<option value="GP"';
-			if ($this->pay_method == 'GP') $output.=' selected ';
-			$output .= '>Оплата наличными через кассы и терминалы</option>';
-		}
-		if ($this->method_mobile == 1 &&  $this->org_mode) {
-			$output .= '<option value="MC"';
-			if ($this->pay_method == 'MC') $output.=' selected ';
-			$output .= '>Платеж со счета мобильного телефона</option>';
-		}
-		if ($this->method_ab == 1 &&  $this->org_mode) {
-			$output .= '<option value="AB"';
-			if ($this->pay_method == 'AB') $output.=' selected ';
-			$output .= '>Оплата через Альфа-Клик</option>';
-		}
-		if ($this->method_sb == 1 &&  $this->org_mode) {
-			$output .= '<option value="SB"';
-			if ($this->pay_method == 'SB') $output.=' selected ';
-			$output .= '>Оплата через Сбербанк: оплата по SMS или Сбербанк Онлайн</option>';
-		}		
-		if ($this->method_wm == 1 &&  $this->org_mode) {
-			$output .= '<option value="WM"';
-			if ($this->pay_method == 'WM') $output.=' selected '; 
-			$output .= '>Оплата из кошелька в системе WebMoney</option>';
-		}
-		if ($this->method_ma == 1 &&  $this->org_mode) {
-			$output .= '<option value="MA"';
-			if ($this->pay_method == 'MA') $output.=' selected '; 
-			$output .= '>Оплата через MasterPass</option>';
-		}
-		if ($this->method_pb == 1 &&  $this->org_mode) {
-			$output .= '<option value="PB"';
-			if ($this->pay_method == 'PB') $output.=' selected '; 
-			$output .= '>Оплата через интернет-банк Промсвязьбанка</option>';
+		$list_methods=array(
+			'ym'=>array('PC'=>'Оплата из кошелька в Яндекс.Деньгах'),
+			'cards'=>array('AC'=>'Оплата с произвольной банковской карты'),
+			'cash'=>array('GP'=>'Оплата наличными через кассы и терминалы'),
+			'mobile'=>array('MC'=>'Платеж со счета мобильного телефона'),
+			'ab'=>array('AB'=>'Оплата через Альфа-Клик'),
+			'sb'=>array('SB'=>'Оплата через Сбербанк: оплата по SMS или Сбербанк Онлайн'),
+			'wm'=>array('WM'=>'Оплата из кошелька в системе WebMoney'),
+			'ma'=>array('MA'=>'Оплата через MasterPass'),
+			'pb'=>array('PB'=>'Оплата через интернет-банк Промсвязьбанка')
+		);
+		foreach ($list_methods as $long_name=>$method_desc){
+			$by_default=(in_array($long_name, array('ym','cards')))?true:$this->org_mode;
+			if ($this->{'method_'.$long_name} == 1 && $by_default) {
+				$output .= '<option value="'.key($method_desc).'"';
+				if ($this->pay_method == key($method_desc)) $output.=' selected ';
+				$output .= '>'.$method_desc[key($method_desc)].'</option>';
+			}
 		}
 		return $output;
 	}
 
 	public function createFormHtml(){
+		global $modx;
+		$site_url = $modx->config['site_url'];
 		if ($this->org_mode){
 			$html = '
 				<form method="POST" action="'.$this->getFormUrl().'"  id="paymentform" name = "paymentform">
@@ -239,7 +213,9 @@ class Yandexmoney {
 				   <input type="hidden" name="scid" value="'.$this->scid.'">
 				   <input type="hidden" name="orderNumber" value="'.$this->orderId.'">
 				   <input type="hidden" name="sum" value="'.$this->orderTotal.'" data-type="number" >
-				   <input type="hidden" name="customerNumber" value="'.$this->userId.'" >	
+				   <input type="hidden" name="customerNumber" value="'.$this->userId.'" >
+					<input type="hidden" name="shopSuccessUrl" value="'.$site_url.'assets/snippets/yandexmoney/callback.php?success=1"> 
+					<input type="hidden" name="shopFailUrl" value="'.$site_url.'assets/snippets/yandexmoney/callback.php?fail=1">
 				   <input type="hidden" name="cms_name" value="modxevo" >	
 				</form>';
 		}else{
@@ -259,7 +235,7 @@ class Yandexmoney {
 					   <input type="hidden" name="need-email" value="'.$this->need_email.'" >
 					   <input type="hidden" name="need-phone" value="'.$this->need_phone.'">
 					   <input type="hidden" name="need-address" value="'.$this->need_address.'">
-					 
+						<input type="hidden" name="successUrl" value="'.$site_url.'assets/snippets/yandexmoney/callback.php?success=1"> 
 					</form>';
 		}
 		$html .= '<script type="text/javascript">
@@ -362,9 +338,11 @@ class Yandexmoney {
 	public static function adminInstallHtml()
 	{
 		$html = '<br/><h1>YandexMoney Payment Module</h1>'
+			  . 'Лицензионный договор.
+			  <p>Любое использование Вами программы означает полное и безоговорочное принятие Вами условий лицензионного договора, размещенного по адресу <a href="https://money.yandex.ru/doc.xml?id=527132">https://money.yandex.ru/doc.xml?id=527132</a> (далее – «Лицензионный договор»). Если Вы не принимаете условия Лицензионного договора в полном объёме, Вы не имеете права использовать программу в каких-либо целях.</p>'
 			  . '<form action="" method="POST">'
 			  . '<input type="hidden" name="action" value="install" />'
-			  . '<input type="submit" value="Install YandexMoney">'
+			  . '<input type="submit" value="Установить">'
 			  . '</form>';
 		return $html;
 	}
@@ -394,9 +372,13 @@ class Yandexmoney {
         <table class="form">
 		<tbody>
 		<tr>
+			<td>Версия модуля</td>
+			<td>'.YANDEXMONEY_VERSION.'</td>
+		</tr>
+		<tr>
             <td>Статус:</td>
             <td>
-			<select name="config[status]">
+				<select name="config[status]">
                  <option value="1" '.(($this->status==1 ? 'selected' : '')).'>Включено</option>
 				 <option value="0"'.(($this->status==0 ? 'selected' : '')).'>Выключено</option>
             </select>
@@ -444,14 +426,12 @@ class Yandexmoney {
 		
 		 <tr class="individ">
 			<td></td>
-			<td><p>Модуль версии 1.1.0</p>
-			<p>Если у вас нет аккаунта в Яндекс-Деньги, то следует зарегистрироваться тут - <a href="https://money.yandex.ru/">https://money.yandex.ru/</a></p><p><b>ВАЖНО!</b> Вам нужно будет указать ссылку для приема HTTP уведомлений здесь - <a href="https://sp-money.yandex.ru/myservices/online.xml" target="_blank">https://sp-money.yandex.ru/myservices/online.xml</a></p></td>
+			<td><p>Если у вас нет аккаунта в Яндекс-Деньги, то следует зарегистрироваться тут - <a href="https://money.yandex.ru/">https://money.yandex.ru/</a></p><p><b>ВАЖНО!</b> Вам нужно будет указать ссылку для приема HTTP уведомлений здесь - <a href="https://sp-money.yandex.ru/myservices/online.xml" target="_blank">https://sp-money.yandex.ru/myservices/online.xml</a></p></td>
 		 </tr>
 
 		  <tr class="org" style="display: none;">
 			<td></td>
-			<td><p>Модуль версии 1.1.0</p>
-			<p>Если у вас нет аккаунта в Яндекс-Деньги, то следует зарегистрироваться тут - <a href="https://money.yandex.ru/joinups/">https://money.yandex.ru/joinups/</a></p></td>
+			<td><p>Если у вас нет аккаунта в Яндекс-Деньги, то следует зарегистрироваться тут - <a href="https://money.yandex.ru/joinups/">https://money.yandex.ru/joinups/</a></p></td>
 		 </tr>
 	
 		  <tr class="individ">
@@ -480,21 +460,13 @@ class Yandexmoney {
 						<td style="border: 1px black solid; padding: 5px;">Название параметра</td>
 						<td style="border: 1px black solid; padding: 5px;">Значение</td>
 				  </tr>
-				  <tr>
-						<td style="border: 1px black solid; padding: 5px;">Адрес приема HTTP уведомлений (paymentAvisoURL)</td>
+				   <tr>
+						<td style="border: 1px black solid; padding: 5px;">checkUrl/avisoUrl</td>
 						<td style="border: 1px black solid; padding: 5px;">'.$site_url.'assets/snippets/yandexmoney/callback.php</td>
 				   </tr>
 				   <tr>
-						<td style="border: 1px black solid; padding: 5px;">checkURL</td>
-						<td style="border: 1px black solid; padding: 5px;">'.$site_url.'assets/snippets/yandexmoney/callback.php</td>
-				   </tr>
-				   <tr>
-						<td style="border: 1px black solid; padding: 5px;">successURL</td>
-						<td style="border: 1px black solid; padding: 5px;">'.$site_url.'assets/snippets/yandexmoney/callback.php?success=1</td>
-				   </tr>
-				   <tr>
-						<td style="border: 1px black solid; padding: 5px;">failURL</td>
-						<td style="border: 1px black solid; padding: 5px;">'.$site_url.'assets/snippets/yandexmoney/callback.php?fail=1</td>
+						<td style="border: 1px black solid; padding: 5px;">successURL/failURL</td>
+						<td style="border: 1px black solid; padding: 5px;">Динамический</td>
 				   </tr>
 				</tbody></table>
 			</td>
@@ -547,5 +519,73 @@ class Yandexmoney {
 		return $html;
 	}
 
+}
+class yamoney_statistics {
+	public function __construct($config){
+		$this->send($config);
+	}
+
+	private function send($config)
+	{
+		global $modx;
+		$array = array(
+			'url' => $modx->config['site_url'],
+			'cms' => 'modxevo',
+			'version' => $modx->config['settings_version'],
+			'ver_mod' => YANDEXMONEY_VERSION,
+			'yacms' => false,
+			'email' => $modx->config['emailsender'],
+			'shopid' => $config['shopid'],
+			'settings' => array(
+				'kassa' => (bool)($config['mode']==2),
+				'p2p'=> (bool)($config['mode']!=2)
+			)
+		);
+
+		$key_crypt = gethostbyname($_SERVER['HTTP_HOST']);
+		$array_crypt = $this->crypt_encrypt($array, $key_crypt);
+
+		$url = 'https://statcms.yamoney.ru/';
+		$curlOpt = array(
+			CURLOPT_HEADER => false,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_SSL_VERIFYHOST => false,
+			CURLINFO_HEADER_OUT => true,
+			CURLOPT_POST => true,
+		);
+
+		$curlOpt[CURLOPT_HTTPHEADER] = array('Content-Type: application/x-www-form-urlencoded');
+		$curlOpt[CURLOPT_POSTFIELDS] = http_build_query(array('data' => $array_crypt));
+
+		$curl = curl_init($url);
+		curl_setopt_array($curl, $curlOpt);
+		$rbody = curl_exec($curl);
+		$errno = curl_errno($curl);
+		$error = curl_error($curl);
+		$rcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+		curl_close($curl);
+	}
+	
+	private function crypt_encrypt($data, $key)
+	{
+		$key = hash('sha256', $key, true);
+		$data = serialize($data);
+		$init_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
+		$init_vect = mcrypt_create_iv($init_size, MCRYPT_RAND);
+		$str = $this->randomString(strlen($key)).$init_vect.mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $data, MCRYPT_MODE_CBC, $init_vect);
+		return base64_encode($str);
+	}
+
+	private function randomString($len)
+	{
+		$str = '';
+		$pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$pool_len = strlen($pool);
+		for ($i = 0; $i < $len; $i++) {
+			$str .= substr($pool, mt_rand(0, $pool_len - 1), 1);
+		}
+		return $str;
+	}
 }
 }
