@@ -117,6 +117,8 @@ if(!function_exists('sendOrderToManager')){
 	  global $modx, $shkconf;
 	 
 	  if(!class_exists('Shopkeeper')) require_once MODX_BASE_PATH."assets/snippets/shopkeeper/class.shopkeeper.php";
+	  if(!defined('YANDEXMONEY_PATH')) define('YANDEXMONEY_PATH', MODX_BASE_PATH."assets/snippets/yandexmoney/");
+	  if(!function_exists('YandexMoneyForm')) require_once YANDEXMONEY_PATH.'yandexmoney.class.php';
 	  $shopCart = new Shopkeeper($modx, $shkconf);
 	  
 	  $shopCart->sendOrderToManager($fields);
