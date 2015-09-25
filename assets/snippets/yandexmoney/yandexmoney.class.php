@@ -1,5 +1,5 @@
 <?php
-if (!defined('YANDEXMONEY_VERSION')) define('YANDEXMONEY_VERSION', '1.2.0');
+if (!defined('YANDEXMONEY_VERSION')) define('YANDEXMONEY_VERSION', '1.3.0');
 if(!function_exists('YandexMoneyForm')){
 	function YandexMoneyForm(&$fields){
 	  global $modx, $vMsg;
@@ -174,7 +174,7 @@ class Yandexmoney {
 	}
 
 	public function checkPayMethod(){
-		if (in_array($this->pay_method, array('PC','AC','MC','GP','WM','AB','SB','MA','PB'))) return true;
+		if (in_array($this->pay_method, array('PC','AC','MC','GP','WM','AB','SB','MA','PB','QW','QP'))) return true;
 		return true;
 	}
 
@@ -189,7 +189,9 @@ class Yandexmoney {
 			'sb'=>array('SB'=>'Оплата через Сбербанк: оплата по SMS или Сбербанк Онлайн'),
 			'wm'=>array('WM'=>'Оплата из кошелька в системе WebMoney'),
 			'ma'=>array('MA'=>'Оплата через MasterPass'),
-			'pb'=>array('PB'=>'Оплата через интернет-банк Промсвязьбанка')
+			'pb'=>array('PB'=>'Оплата через интернет-банк Промсвязьбанка'),
+			'qw'=>array('QW'=>'Оплата через QIWI Wallet'),
+			'qp'=>array('QP'=>'Оплата через доверительный платеж (Куппи.ру)')
 		);
 		foreach ($list_methods as $long_name=>$method_desc){
 			$by_default=(in_array($long_name, array('ym','cards')))?true:$this->org_mode;
@@ -420,6 +422,8 @@ class Yandexmoney {
 					<input type="checkbox" name="config[method_sb]" value="1" id="ym_method_7" '.(($this->method_sb==1 ? 'checked' : '')).'><label for="ym_method_7" style="width: 280px;text-align: left;">Сбербанк: оплата по SMS или Сбербанк Онлайн</label> <br>
 					<input type="checkbox" name="config[method_ma]" value="1" id="ym_method_8" '.(($this->method_ma==1 ? 'checked' : '')).'><label for="ym_method_8" style="width: 280px;text-align: left;">MasterPass</label> <br>
 					<input type="checkbox" name="config[method_pb]" value="1" id="ym_method_9" '.(($this->method_pb==1 ? 'checked' : '')).'><label for="ym_method_9" style="width: 280px;text-align: left;">Интернет-банк Промсвязьбанка</label> <br>
+					<input type="checkbox" name="config[method_qw]" value="1" id="ym_method_10" '.(($this->method_qw==1 ? 'checked' : '')).'><label for="ym_method_10" style="width: 280px;text-align: left;">QIWI Wallet</label> <br>
+					<input type="checkbox" name="config[method_qp]" value="1" id="ym_method_11" '.(($this->method_qp==1 ? 'checked' : '')).'><label for="ym_method_11" style="width: 280px;text-align: left;">Доверительный платеж (Куппи.ру)</label> <br>
 				</div>
 			 </td>
           </tr>
@@ -431,7 +435,7 @@ class Yandexmoney {
 
 		  <tr class="org" style="display: none;">
 			<td></td>
-			<td><p>Если у вас нет аккаунта в Яндекс-Деньги, то следует зарегистрироваться тут - <a href="https://money.yandex.ru/joinups/">https://money.yandex.ru/joinups/</a></p></td>
+			<td><p>Для работы с модулем необходимо <a href="https://money.yandex.ru/joinups/">подключить магазин к Яндек.Кассе</a>. После подключения вы получите параметры для приема платежей (идентификатор магазина — shopId и номер витрины — scid).</p></td>
 		 </tr>
 	
 		  <tr class="individ">
