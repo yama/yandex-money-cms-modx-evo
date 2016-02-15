@@ -1,13 +1,11 @@
 <?php
-require_once '../../../manager/includes/protect.inc.php';
+require_once(MODX_MANAGER_PATH . '../../../manager/includes/config.inc.php');
+define('MODX_API_MODE', true);
+
 require_once 'yandexmoney.class.php';
 
-define('MODX_MANAGER_PATH', "../../../manager/");
-require_once(MODX_MANAGER_PATH . 'includes/config.inc.php');
-require_once(MODX_MANAGER_PATH . '/includes/protect.inc.php');
-define('MODX_API_MODE', true);
-require_once(MODX_MANAGER_PATH.'/includes/document.parser.class.inc.php');
-
+require_once(MODX_MANAGER_PATH . 'includes/protect.inc.php');
+require_once(MODX_MANAGER_PATH.'includes/document.parser.class.inc.php');
 
 $modx = new DocumentParser;
 $modx->db->connect();
@@ -23,7 +21,7 @@ $mod_table = $dbprefix."yandexmoney";
 
 
 $data_query = $modx->db->select("*", $mod_table, "", "id ASC", ""); 
-$row = mysql_fetch_assoc($data_query);
+$row = $modx->db->getRow($data_query);
 $config = unserialize($row['config']);
 
 
