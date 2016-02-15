@@ -7,23 +7,15 @@ require_once 'yandexmoney.class.php';
 require_once(MODX_MANAGER_PATH . 'includes/protect.inc.php');
 require_once(MODX_MANAGER_PATH.'includes/document.parser.class.inc.php');
 
-$modx = new DocumentParser;
+if(!isset($modx)) $modx = new DocumentParser;
 $modx->db->connect();
 $modx->getSettings();
-$modx->config['site_url'] = isset($request['site_url']) ? $request['site_url'] : '';
+$modx->config['site_url'] = isset($_REQUEST['site_url']) ? $_REQUEST['site_url'] : '';
+$modx->config['site_url'] = htmlspecialchars($modx->config['site_url'], ENT_QUOTES, $modx->config['modx_charset']);
 
-$manager_language = $modx->config['manager_language'];
-$charset = $modx->config['modx_charset'];
-$dbname = $modx->db->config['dbase'];
-$base_dir = $modx->config['rb_base_dir'];
-$dbprefix = $modx->db->config['table_prefix'];
-$mod_table = $dbprefix."yandexmoney";
-
-
-$data_query = $modx->db->select("*", $mod_table, "", "id ASC", ""); 
-$row = $modx->db->getRow($data_query);
+$rs = $modx->db->select('*', $modx->getFullTableName('yandexmoney'), '', 'id ASC', ''); 
+$row = $modx->db->getRow($rs);
 $config = unserialize($row['config']);
-
 
 $ym = new Yandexmoney($config);
 
